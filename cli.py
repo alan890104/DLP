@@ -19,7 +19,7 @@ def cli() -> ArgumentParser:
     parser.add_argument(
         "--val",
         action="store_true",
-        default=True,
+        default=False,
         help="Only validate model",
     )
     parser.add_argument(

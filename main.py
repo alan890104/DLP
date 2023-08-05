@@ -143,18 +143,13 @@ def main():
     epoch = args.epoch
     nn: _ResNet = ResNetFactory(args.resnet)
     criterion = F.cross_entropy
-    optimizer = torch.optim.Adam(
-        nn.parameters(),
-        lr=args.lr,
-    )
-    scheduler = CosineAnnealingLR(optimizer, T_max=epoch, eta_min=1e-6)
 
     if args.checkpoint:
         saved = torch.load(args.checkpoint)
         nn.load_state_dict(saved["model"])
-        optimizer.load_state_dict(saved["optimizer"])
-        scheduler.load_state_dict(saved["scheduler"])
-        epoch = saved["epoch"]
+
+    optimizer = torch.optim.Adam(nn.parameters(), lr=args.lr)
+    scheduler = CosineAnnealingLR(optimizer, T_max=epoch, eta_min=1e-5)
 
     trainset: ResNetDataset = ResNetDataset(args.resnet, "train", train_tfs)
     validset: ResNetDataset = ResNetDataset(args.resnet, "valid", val_tfs)
@@ -182,42 +177,42 @@ def main():
     nn = nn.cuda()
 
     # train
-    baseline_acc = 0.8
-    with tqdm(total=epoch) as pbar:
-        for e in range(1, epoch + 1):
-            train_loss, train_acc = train(
-                nn,
-                train_loader,
-                criterion,
-                optimizer,
-                e,
-                weight,
-            )
-            val_loss, val_acc, _, _ = validate(
-                nn,
-                valid_loader,
-                criterion,
-                e,
-                weight,
-            )
-            scheduler.step()
-
-            pbar.set_description(
-                f"Epoch {e} | train_loss: {round(train_loss, 4)} | train_acc: {round(train_acc*100, 2)}% | val_loss: {round(val_loss, 4)} | val_acc: {round(val_acc*100, 2)}%"
-            )
-            pbar.update(1)
-
-            if val_acc > baseline_acc:
-                baseline_acc = val_acc
-                torch.save(
-                    {
-                        "epoch": e,
-                        "model": nn.state_dict(),
-                        "optimizer": optimizer.state_dict(),
-                        "scheduler": scheduler.state_dict(),
-                    },
-                    f"checkpoint/model-epoch{e}-acc{round(val_acc*100,2)}.pt",
+    if not args.val:
+        baseline_acc = 0.8
+        with tqdm(total=epoch) as pbar:
+            for e in range(1, epoch + 1):
+                train_loss, train_acc = train(
+                    nn,
+                    train_loader,
+                    criterion,
+                    optimizer,
+                    e,
+                    weight,
                 )
+                val_loss, val_acc, _, _ = validate(
+                    nn,
+                    valid_loader,
+                    criterion,
+                    e,
+                    weight,
+                )
+                scheduler.step()
+
+                pbar.set_description(
+                    f"Epoch {e} | train_loss: {round(train_loss, 4)} | train_acc: {round(train_acc*100, 2)}% | val_loss: {round(val_loss, 4)} | val_acc: {round(val_acc*100, 2)}%"
+                )
+                pbar.update(1)
+
+                if val_acc > baseline_acc:
+                    baseline_acc = val_acc
+                    torch.save(
+                        {
+                            "model": nn.state_dict(),
+                            "config": args,
+                        },
+                        f"checkpoint/model-epoch{e}-acc{round(val_acc*100,2)}.pt",
+                    )
+
     _, _, preds, actuals = validate(nn, valid_loader, criterion, e, weight)
     matrix = confusion_matrix(actuals, preds)
     print(matrix)
