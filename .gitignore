@@ -1,0 +1,7 @@
+*.zip
+__pycache__/
+checkpoint/
+dataset/
+runs/
+venv/
+.vscode/
