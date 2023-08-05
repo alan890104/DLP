@@ -37,7 +37,7 @@ def cli() -> ArgumentParser:
     parser.add_argument(
         "--epoch",
         type=int,
-        default=100,
+        default=400,
         help="epoch",
     )
     parser.add_argument(
