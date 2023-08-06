@@ -210,7 +210,7 @@ def main():
                             "model": nn.state_dict(),
                             "config": args,
                         },
-                        f"checkpoint/model-epoch{e}-acc{round(val_acc*100,2)}.pt",
+                        f"checkpoint/resnet{args.resnet}-epoch{e}-acc{round(val_acc*100,2)}.pt",
                     )
 
     _, _, preds, actuals = validate(nn, valid_loader, criterion, e, weight)
