@@ -61,7 +61,7 @@ def inf_cli() -> ArgumentParser:
     parser.add_argument(
         "--dim",
         type=int,
-        default=128,
+        default=450,
         help="image dimension",
     )
     parser.add_argument(
@@ -69,5 +69,11 @@ def inf_cli() -> ArgumentParser:
         type=str,
         required=True,
         help="checkpoint path",
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=32,
+        help="batch size",
     )
     return parser

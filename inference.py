@@ -25,7 +25,7 @@ def main():
     nn.load_state_dict(torch.load(args.checkpoint)["model"])
     nn.cuda()
     testset = EvalDataset(args.resnet, test_tfs)
-    test_loader = DataLoader(testset, batch_size=64, shuffle=False)
+    test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False)
 
     paths = []
     preds = []

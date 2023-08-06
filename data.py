@@ -54,6 +54,7 @@ class EvalDataset:
         image = Image.open(path).convert("RGB")
         if self.transform:
             image = self.transform(image)
+        path = f"./new_dataset/test/{os.path.basename(path)}"
         return image, path
 
     def __len__(self):
