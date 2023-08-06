@@ -136,6 +136,8 @@ def main():
         [
             transforms.Resize(args.dim),
             transforms.ToTensor(),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
@@ -167,13 +169,16 @@ def main():
         generator=g,
     )
 
-    class_weight = compute_class_weight(
-        class_weight="balanced",
-        classes=np.unique(trainset.index["label"]),
-        y=trainset.index["label"],
-    )
+    # This is for class imbalance, however, it does not work well
+    #
+    # class_weight = compute_class_weight(
+    #     class_weight="balanced",
+    #     classes=np.unique(trainset.index["label"]),
+    #     y=trainset.index["label"],
+    # )
+    # weight = torch.tensor(class_weight, dtype=torch.float).cuda()
 
-    weight = torch.tensor(class_weight, dtype=torch.float).cuda()
+    weight = None
     nn = nn.cuda()
 
     # train

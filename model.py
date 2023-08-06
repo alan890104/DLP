@@ -10,10 +10,25 @@ import torch.nn.functional as F
 import torch.nn.init as init
 
 
+def get_act(act: str) -> nn.Module:
+    if act == "relu":
+        return nn.ReLU()
+    elif act == "celu":
+        return nn.CELU()
+    else:
+        raise NotImplementedError
+
+
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_channels: int, out_channels: int, stride: int = 1):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        stride: int = 1,
+        act: str = "celu",
+    ):
         super(Bottleneck, self).__init__()
 
         self.conv1 = nn.Conv2d(
@@ -49,7 +64,7 @@ class Bottleneck(nn.Module):
             )
 
         self.stride = stride
-        self.relu = nn.ReLU()
+        self.act = get_act(act)
 
         init.kaiming_normal_(self.conv1.weight)
         init.kaiming_normal_(self.conv2.weight)
@@ -57,18 +72,24 @@ class Bottleneck(nn.Module):
 
     def forward(self, x):
         identity = self.shortcut(x)
-        out = self.relu(self.batch_norm1(self.conv1(x)))
-        out = self.relu(self.batch_norm2(self.conv2(out)))
+        out = self.act(self.batch_norm1(self.conv1(x)))
+        out = self.act(self.batch_norm2(self.conv2(out)))
         out = self.batch_norm3(self.conv3(out))
         out += identity
-        out = self.relu(out)
+        out = self.act(out)
         return out
 
 
 class Block(nn.Module):
     expansion = 1
 
-    def __init__(self, in_channels, out_channels, stride=1):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        stride=1,
+        act: str = "celu",
+    ):
         super(Block, self).__init__()
 
         self.conv1 = nn.Conv2d(
@@ -104,23 +125,30 @@ class Block(nn.Module):
             )
 
         self.stride = stride
-        self.relu = nn.ReLU()
+        self.act = get_act(act)
         init.kaiming_normal_(self.conv1.weight)
         init.kaiming_normal_(self.conv2.weight)
 
     def forward(self, x):
         identity = self.shortcut(x)
 
-        out = self.relu(self.batch_norm1(self.conv1(x)))
+        out = self.act(self.batch_norm1(self.conv1(x)))
         out = self.batch_norm2(self.conv2(out))
 
         out += identity
-        out = self.relu(out)
+        out = self.act(out)
         return out
 
 
 class _ResNet(nn.Module):
-    def __init__(self, ResBlock, layer_list, num_classes, num_channels: int = 3):
+    def __init__(
+        self,
+        ResBlock,
+        layer_list: list[int],
+        num_classes: int,
+        num_channels: int = 3,
+        act: str = "celu",
+    ):
         super(_ResNet, self).__init__()
         self.in_channels = 64
 
@@ -133,7 +161,7 @@ class _ResNet(nn.Module):
             bias=False,
         )
         self.batch_norm1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU()
+        self.act = get_act(act)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         self.layer1 = self._make_layer(ResBlock, layer_list[0], planes=64)
@@ -149,7 +177,7 @@ class _ResNet(nn.Module):
         init.kaiming_normal_(self.fc.weight)
 
     def forward(self, x: torch.Tensor):
-        x = self.relu(self.batch_norm1(self.conv1(x)))
+        x = self.act(self.batch_norm1(self.conv1(x)))
         x = self.max_pool(x)
 
         x = self.layer1(x)
