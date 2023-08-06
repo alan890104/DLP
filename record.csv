@@ -1,3 +1,4 @@
 Namespace(resnet='18', dim=450, val=True, batch_size=32, lr=0.0003, epoch=200, checkpoint=None), checkpoint/model-epoch150-acc92.31.pt
 Namespace(resnet='18', dim=450, val=False, batch_size=32, lr=0.0003, epoch=2000, checkpoint=None), checkpoint/model-epoch1749-acc99.44.pt
 Namespace(resnet='50', dim=256, val=False, batch_size=32, lr=0.0003, epoch=2000, checkpoint=None), checkpoint/model-epoch1956-acc98.81.pt
+Namespace(resnet='152', dim=256, val=False, batch_size=32, lr=0.0003, epoch=2000, checkpoint=None), checkpoint/model-epoch808-acc96.19.pt
