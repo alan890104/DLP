@@ -37,8 +37,6 @@ os.makedirs("checkpoint", exist_ok=True)
 
 assert torch.cuda.is_available(), "CUDA is not available"
 
-summary = SummaryWriter()
-
 
 def train(
     model: torch.nn.Module,
@@ -166,6 +164,7 @@ def main():
 
     # train
     if not args.val:
+        summary = SummaryWriter(flush_secs=5)
         baseline_acc = 0.8
         with tqdm(total=epoch) as pbar:
             for e in range(1, epoch + 1):
@@ -184,10 +183,10 @@ def main():
                     e,
                     weight,
                 )
-                summary.add_scalar("Loss/train", train_loss, global_step=e)
-                summary.add_scalar("Acc/train", train_acc, global_step=e)
-                summary.add_scalar("Loss/val", val_loss, global_step=e)
-                summary.add_scalar("Acc/val", val_acc, global_step=e)
+                summary.add_scalar("Loss/train", train_loss, e)
+                summary.add_scalar("Acc/train", train_acc, e)
+                summary.add_scalar("Loss/val", val_loss, e)
+                summary.add_scalar("Acc/val", val_acc, e)
                 scheduler.step()
 
                 pbar.set_description(
