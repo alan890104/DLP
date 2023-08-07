@@ -64,8 +64,6 @@ def train(
         correct += pred.eq(target.view_as(pred)).sum().item()
     train_loss /= len(train_loader.dataset)
     train_acc = correct / len(train_loader.dataset)
-    summary.add_scalar("Loss/train", train_loss, global_step=epoch)
-    summary.add_scalar("Acc/train", train_acc, global_step=epoch)
     return train_loss, train_acc
 
 
@@ -96,9 +94,6 @@ def validate(
 
     val_loss /= len(test_loader.dataset)
     val_acc = correct / len(test_loader.dataset)
-    if epoch is not None:
-        summary.add_scalar("Loss/train", val_loss, global_step=epoch)
-        summary.add_scalar("Acc/train", val_acc, global_step=epoch)
     return val_loss, val_acc, preds, actuals
 
 
@@ -189,6 +184,10 @@ def main():
                     e,
                     weight,
                 )
+                summary.add_scalar("Loss/train", train_loss, global_step=e)
+                summary.add_scalar("Acc/train", train_acc, global_step=e)
+                summary.add_scalar("Loss/val", val_loss, global_step=e)
+                summary.add_scalar("Acc/val", val_acc, global_step=e)
                 scheduler.step()
 
                 pbar.set_description(
