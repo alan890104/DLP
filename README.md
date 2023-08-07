@@ -21,6 +21,9 @@ pip install -r requirements.txt
 3. Run the code
 
 ```bash
-python3 main.py --resnet 18 --batch_size 32 --dim 256 --val --checkpoint checkpoicheckpoint/resnet18-epoch955-acc98.81.pt
-python3 main.py --resnet 50 --batch_size 36  --epoch 1000 --dim 256 --lr 0.0001 --val --checkpoint
+# resnet 18
+python3 inference.py --resnet 18 --batch_size 32 --dim 256 --val --checkpoint checkpoicheckpoint/resnet18-epoch955-acc98.81.pt
+
+# resnet 50
+python3 inference.py --resnet 50 --batch_size 36  --dim 256 --checkpoint checkpoint/resnet50-epoch545-acc98.5.pt
 ```
