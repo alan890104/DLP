@@ -64,14 +64,8 @@ def train(
         correct += pred.eq(target.view_as(pred)).sum().item()
     train_loss /= len(train_loader.dataset)
     train_acc = correct / len(train_loader.dataset)
-    summary.add_scalars(
-        "train",
-        {
-            "loss": train_loss,
-            "acc": train_acc,
-        },
-        global_step=epoch,
-    )
+    summary.add_scalar("Loss/train", train_loss, global_step=epoch)
+    summary.add_scalar("Acc/train", train_acc, global_step=epoch)
     return train_loss, train_acc
 
 
@@ -103,14 +97,8 @@ def validate(
     val_loss /= len(test_loader.dataset)
     val_acc = correct / len(test_loader.dataset)
     if epoch is not None:
-        summary.add_scalars(
-            "train",
-            {
-                "loss": val_loss,
-                "acc": val_acc,
-            },
-            global_step=epoch,
-        )
+        summary.add_scalar("Loss/train", val_loss, global_step=epoch)
+        summary.add_scalar("Acc/train", val_acc, global_step=epoch)
     return val_loss, val_acc, preds, actuals
 
 
