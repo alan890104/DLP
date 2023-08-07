@@ -21,5 +21,5 @@ pip install -r requirements.txt
 3. Run the code
 
 ```bash
-python3 main.py --resnet 18 --batch_size 32 --epoch 200
+python3 main.py --resnet 18 --batch_size 32 --dim 256 --epoch 1000 --lr 0.0001 --val --checkpoint
 ```

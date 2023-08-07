@@ -125,7 +125,7 @@ def main():
 
     train_tfs = transforms.Compose(
         [
-            transforms.RandomResizedCrop(args.dim),
+            transforms.Resize(args.dim),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.RandomRotation(60),
