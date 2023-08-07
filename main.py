@@ -13,6 +13,7 @@ from tqdm import tqdm
 import numpy as np
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import confusion_matrix
+import seaborn as sns
 import random
 import os
 
@@ -79,8 +80,8 @@ def validate(
     model: torch.nn.Module,
     test_loader: DataLoader,
     criterion: _Loss,
-    epoch: int,
-    weight: torch.Tensor,
+    epoch: int = None,
+    weight: torch.Tensor = None,
 ):
     model.eval()
     val_loss = 0
@@ -101,14 +102,15 @@ def validate(
 
     val_loss /= len(test_loader.dataset)
     val_acc = correct / len(test_loader.dataset)
-    summary.add_scalars(
-        "train",
-        {
-            "loss": val_loss,
-            "acc": val_acc,
-        },
-        global_step=epoch,
-    )
+    if epoch is not None:
+        summary.add_scalars(
+            "train",
+            {
+                "loss": val_loss,
+                "acc": val_acc,
+            },
+            global_step=epoch,
+        )
     return val_loss, val_acc, preds, actuals
 
 
@@ -147,8 +149,7 @@ def main():
     criterion = F.cross_entropy
 
     if args.checkpoint:
-        saved = torch.load(args.checkpoint)
-        nn.load_state_dict(saved["model"])
+        nn.load_state_dict(torch.load(args.checkpoint)["model"])
 
     optimizer = torch.optim.Adam(nn.parameters(), lr=args.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=epoch, eta_min=1e-5)
@@ -218,9 +219,10 @@ def main():
                         f"checkpoint/resnet{args.resnet}-epoch{e}-acc{round(val_acc*100,2)}.pt",
                     )
 
-    _, _, preds, actuals = validate(nn, valid_loader, criterion, e, weight)
+    _, _, preds, actuals = validate(nn, valid_loader, criterion)
     matrix = confusion_matrix(actuals, preds)
     print(matrix)
+    sns.heatmap(matrix, annot=True).figure.savefig(f"confmatrix-{args.resnet}.png")
 
 
 if __name__ == "__main__":
