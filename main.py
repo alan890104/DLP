@@ -215,8 +215,9 @@ def main():
                         f"checkpoint/resnet{args.resnet}-epoch{e}-acc{round(val_acc*100,2)}.pt",
                     )
 
-    _, _, preds, actuals = validate(nn, valid_loader, criterion)
+    val_loss, val_acc, preds, actuals = validate(nn, valid_loader, criterion)
     matrix = confusion_matrix(actuals, preds)
+    print(f"Validation loss: {val_loss}, Validation acc: {val_acc}")
     print(matrix)
     sns.heatmap(matrix, annot=True).figure.savefig(f"confmatrix-{args.resnet}.png")
 
