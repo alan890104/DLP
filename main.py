@@ -138,8 +138,6 @@ def main():
         [
             transforms.Resize(args.dim),
             transforms.ToTensor(),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomVerticalFlip(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
@@ -149,7 +147,8 @@ def main():
     criterion = F.cross_entropy
 
     if args.checkpoint:
-        nn.load_state_dict(torch.load(args.checkpoint)["model"])
+        print(f"Loading checkpoint {args.checkpoint}")
+        nn.load_state_dict(torch.load(args.checkpoint))
 
     optimizer = torch.optim.Adam(nn.parameters(), lr=args.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=epoch, eta_min=1e-5)
@@ -212,10 +211,7 @@ def main():
                 if val_acc > baseline_acc:
                     baseline_acc = val_acc
                     torch.save(
-                        {
-                            "model": nn.state_dict(),
-                            "config": args,
-                        },
+                        nn.state_dict(),
                         f"checkpoint/resnet{args.resnet}-epoch{e}-acc{round(val_acc*100,2)}.pt",
                     )
 

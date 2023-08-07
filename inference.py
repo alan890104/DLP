@@ -22,7 +22,7 @@ def main():
     )
 
     nn: _ResNet = ResNetFactory(args.resnet)
-    nn.load_state_dict(torch.load(args.checkpoint)["model"])
+    nn.load_state_dict(torch.load(args.checkpoint))
     nn.cuda()
     testset = EvalDataset(args.resnet, test_tfs)
     test_loader = DataLoader(testset, batch_size=args.batch_size, shuffle=False)
